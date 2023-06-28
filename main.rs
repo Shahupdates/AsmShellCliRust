@@ -1,9 +1,7 @@
 use ansi_term::Colour::Red;
 use clap::Parser;
-use keystone::{OptionType, OptionValue};
 use rustyline::error::ReadlineError;
 use rustyline::{Cmd, Editor, KeyCode, KeyEvent, Modifiers};
-use unicorn_engine::unicorn_const::Permission;
 
 pub mod engine;
 
@@ -11,7 +9,6 @@ use crate::engine::machine::Machine;
 
 #[derive(clap::ValueEnum, Clone, Debug, PartialEq)]
 #[allow(clippy::upper_case_acronyms)]
-
 enum AssemblerSyntax {
     INTEL,
     ATT,
@@ -27,19 +24,6 @@ struct Args {
 
     #[arg(short, long, value_enum)]
     syntax: Option<AssemblerSyntax>,
-
-    #[arg(long, default_value_t = 0x01300000)]
-    initial_sp: u64,
-    #[arg(long, default_value_t = 0x10000000)]
-    initial_fp: u64,
-
-    #[arg(long, default_value_t = 0)]
-    initial_mem_begin: u64,
-    #[arg(long, default_value_t = 0x20000000)]
-    initial_mem_size: usize,
-    // TODO: impl this
-    // #[arg(short, long)]
-    // initial_mem_prot: Permission
 }
 
 fn get_machine(arch_name: String) -> Machine<'static> {
@@ -47,7 +31,6 @@ fn get_machine(arch_name: String) -> Machine<'static> {
 }
 
 fn main() {
-    // let args: Vec<String> = env::args().collect();
     let args = Args::parse();
 
     let arch_name = match args.arch {
@@ -67,20 +50,7 @@ fn main() {
 
     let mut m: Machine = get_machine(arch_name);
 
-    // machine init
-    println!("initial: sp={:?} fp={:?}", args.initial_sp, args.initial_fp);
-    println!("ass_syntax: {:?}", ass_syntax);
-    m.set_sp(args.initial_sp)
-        .expect("failed to write stack pointer");
-    m.set_fp(args.initial_fp)
-        .expect("failed to write stack frame");
-    m.emu
-        .mem_map(
-            args.initial_mem_begin,
-            args.initial_mem_size,
-            Permission::ALL,
-        )
-        .expect("failed to mem map");
+    // Machine initialization
     m.assembler
         .option(OptionType::SYNTAX, ass_syntax)
         .expect("failed to change assembler syntax");
