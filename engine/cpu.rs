@@ -9,7 +9,6 @@ pub enum Mode {
     Mode64,
 }
 
-#[allow(clippy::from_over_into)]
 impl Into<unicorn_const::Mode> for Mode {
     fn into(self) -> unicorn_const::Mode {
         match self {
@@ -19,7 +18,6 @@ impl Into<unicorn_const::Mode> for Mode {
     }
 }
 
-#[allow(clippy::from_over_into)]
 impl Into<keystone::Mode> for Mode {
     fn into(self) -> keystone::Mode {
         match self {
@@ -31,6 +29,7 @@ impl Into<keystone::Mode> for Mode {
 
 impl TryFrom<unicorn_const::Mode> for Mode {
     type Error = &'static str;
+
     fn try_from(value: unicorn_const::Mode) -> Result<Self, Self::Error> {
         match value {
             unicorn_const::Mode::MODE_32 => Ok(Self::Mode32),
@@ -45,7 +44,6 @@ pub enum Arch {
     X86,
 }
 
-#[allow(clippy::from_over_into)]
 impl Into<unicorn_const::Arch> for Arch {
     fn into(self) -> unicorn_const::Arch {
         match self {
@@ -54,7 +52,6 @@ impl Into<unicorn_const::Arch> for Arch {
     }
 }
 
-#[allow(clippy::from_over_into)]
 impl Into<keystone::Arch> for Arch {
     fn into(self) -> keystone::Arch {
         match self {
@@ -65,6 +62,7 @@ impl Into<keystone::Arch> for Arch {
 
 impl TryFrom<unicorn_const::Arch> for Arch {
     type Error = &'static str;
+
     fn try_from(value: unicorn_const::Arch) -> Result<Self, Self::Error> {
         match value {
             unicorn_const::Arch::X86 => Ok(Self::X86),
@@ -80,16 +78,12 @@ impl Arch {
         registers: HashMap<&'static str, i32>,
     ) -> HashMap<&'static str, u64> {
         registers
-            .keys()
-            .into_iter()
-            .filter(|&&x| x != "end") // "end" is pseudo-register (to add new row)
-            .map(|&reg_name| {
-                (
-                    reg_name,
-                    emu.reg_read(*registers.get(reg_name).unwrap()).unwrap(),
-                )
+            .iter()
+            .filter(|(&reg_name, _)| reg_name != "end")
+            .map(|(&reg_name, &reg_value)| {
+                (reg_name, emu.reg_read(reg_value).unwrap())
             })
-            .collect::<HashMap<_, _>>()
+            .collect()
     }
 }
 
@@ -104,22 +98,17 @@ pub trait ArchMeta {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct X32 {
-    inner: Arch,
-}
-impl X32 {
-    pub fn new(arch: Arch) -> Self {
-        Self { inner: arch }
-    }
-}
+pub struct X32;
+
 impl ArchMeta for X32 {
     fn cpu(&self) -> (Arch, Mode) {
-        (self.inner, Mode::Mode32)
+        (Arch::X86, Mode::Mode32)
     }
 
     fn sp_reg(&self) -> i32 {
         i32::from(RegisterX86::ESP)
     }
+
     fn fp_reg(&self) -> i32 {
         i32::from(RegisterX86::EBP)
     }
@@ -130,17 +119,16 @@ impl ArchMeta for X32 {
 
     fn sorted_reg_names(&self) -> Vec<&'static str> {
         vec![
-            "eax", "ebx", "ecx", "edx", "end", //
-            "esi", "edi", "end", //
-            "eip", "ebp", "esp", "end", //
-            "flags", "end", //
-            "cs", "ss", "ds", "es", "end", //
-            "fs", "gs", "end", //
+            "eax", "ebx", "ecx", "edx", "end",
+            "esi", "edi", "end",
+            "eip", "ebp", "esp", "end",
+            "flags", "end",
+            "cs", "ss", "ds", "es", "end",
+            "fs", "gs", "end",
         ]
     }
 
     fn register_map(&self) -> HashMap<&'static str, i32> {
-        // register to trace, display, etc.
         hashmap! {
             "eax"   => i32::from(RegisterX86::EAX),
             "ebx"   => i32::from(RegisterX86::EBX),
@@ -162,27 +150,22 @@ impl ArchMeta for X32 {
     }
 
     fn dump_registers(&self, emu: &Unicorn<'static, ()>) -> HashMap<&'static str, u64> {
-        self.inner.dump_registers(emu, self.register_map())
+        Arch::dump_registers(&Arch::X86, emu, self.register_map())
     }
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct X64 {
-    inner: Arch,
-}
-impl X64 {
-    pub fn new(arch: Arch) -> X64 {
-        X64 { inner: arch }
-    }
-}
+pub struct X64;
+
 impl ArchMeta for X64 {
     fn cpu(&self) -> (Arch, Mode) {
-        (self.inner, Mode::Mode64)
+        (Arch::X86, Mode::Mode64)
     }
 
     fn sp_reg(&self) -> i32 {
         i32::from(RegisterX86::RSP)
     }
+
     fn fp_reg(&self) -> i32 {
         i32::from(RegisterX86::RBP)
     }
@@ -193,18 +176,17 @@ impl ArchMeta for X64 {
 
     fn sorted_reg_names(&self) -> Vec<&'static str> {
         vec![
-            "rax", "rbx", "rcx", "rdx", "end", //
-            "rsi", "rdi", "r8", "r9", "end", //
-            "r10", "r11", "r12", "r13", "end", //
-            "r14", "r15", "end", //
-            "rip", "rbp", "rsp", "end", //
-            "cs", "ss", "ds", "es", "end", //
-            "fs", "gs", "end", "flags", "end", //
+            "rax", "rbx", "rcx", "rdx", "end",
+            "rsi", "rdi", "r8", "r9", "end",
+            "r10", "r11", "r12", "r13", "end",
+            "r14", "r15", "end",
+            "rip", "rbp", "rsp", "end",
+            "cs", "ss", "ds", "es", "end",
+            "fs", "gs", "end", "flags", "end",
         ]
     }
 
     fn register_map(&self) -> HashMap<&'static str, i32> {
-        // register to trace, display, etc.
         hashmap! {
             "rax"   => i32::from(RegisterX86::RAX),
             "rbx"   => i32::from(RegisterX86::RBX),
@@ -234,6 +216,6 @@ impl ArchMeta for X64 {
     }
 
     fn dump_registers(&self, emu: &Unicorn<'static, ()>) -> HashMap<&'static str, u64> {
-        self.inner.dump_registers(emu, self.register_map())
+        Arch::dump_registers(&Arch::X86, emu, self.register_map())
     }
 }
