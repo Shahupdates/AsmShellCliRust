@@ -1,14 +1,11 @@
 # AsmShellCliRust
- 
-An interactive assembly shell written in Rust. This project is a Rust command-line interface (CLI) application that provides a machine emulator and assembler functionality. It allows you to emulate and assemble instructions for different CPU architectures.
 
+An interactive assembly shell written in Rust. This project is a Rust command-line interface (CLI) application that provides a machine emulator and assembler functionality. It allows you to emulate and assemble instructions for different CPU architectures.
 
 ## Overview
 
-`asm-cli-rust` provides an interactive shell for working with assembly language. It supports both x86 and x64 instruction sets.
-
+`AsmShellCliRust` provides an interactive shell for working with assembly language. It supports both x86 and x64 instruction sets, allowing you to write and execute assembly instructions directly from the command line.
 ![e02a29d22e9a3d870222751b82cba89f](https://github.com/Shahupdates/AsmShellCliRust/assets/120000782/d416321e-78eb-4b07-9981-5dd424df33b9)
-
 ## Files
 
 The project consists of the following files:
@@ -20,12 +17,11 @@ The project consists of the following files:
 
 ## Usage
 
-To use this project:
+To use this project and start the interactive assembly shell, allowing you to enter assembly instructions and execute them, you can run the following command:
 
 ```sh
-shell> asm-cli-rust [x86/x64]
+cargo run --release
 ```
-
 
 ## `main.rs`
 
@@ -35,8 +31,8 @@ The `main` function performs the following steps:
 
 1. Parses the command-line arguments using the `Args::parse` method.
 2. Retrieves the desired architecture and assembler syntax from the parsed arguments.
-3. Initializes the machine emulator by calling the `get_machine` function with the specified architecture.
-4. Sets the initial stack pointer, stack frame, and memory mapping for the machine.
+3. Initializes the machine emulator by calling the appropriate functions in the `Machine` module.
+4. Sets up the initial state of the machine, including stack pointer, stack frame, and memory mapping.
 5. Enters a loop to read user input from the command line using the `rustyline` crate.
 6. Assembles the user input using the machine's `asm` method and executes the assembled instructions.
 7. Prints the mnemonic, hex representation, and modifies the machine's state accordingly.
@@ -44,7 +40,7 @@ The `main` function performs the following steps:
 
 ## `machine.rs`
 
-The `machine.rs` file contains the implementation of the `Machine` struct, which represents the machine emulator. The struct includes fields for the register map, assembler, unicorn engine, CPU information, stack pointer, and stack frame.
+The `machine.rs` file contains the implementation of the `Machine` struct, which represents the machine emulator. The struct includes fields for the register map, assembler, Unicorn engine, CPU information, stack pointer, and stack frame.
 
 The `Machine` struct provides several methods:
 
@@ -85,5 +81,12 @@ The project depends on the following external crates:
 - `rustyline`: A crate for readline-like functionality.
 - `unicorn_engine`: A crate for the Unicorn CPU emulator.
 
-Make sure to install these dependencies before running the application.
+Make sure to include these dependencies in your project's `Cargo.toml` file to ensure that the application compiles and runs correctly.
 
+## Contributing
+
+Contributions to `AsmShellCliRust` are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the GitHub repository.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/Shahupdates/AsmShellCliRust/blob/main/LICENSE) file for more information.
