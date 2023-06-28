@@ -27,7 +27,7 @@ shell> asm-cli-rust [x86/x64]
 ```
 
 
-### `main.rs`
+## `main.rs`
 
 The `main.rs` file is the entry point of the CLI application. It uses the `clap` crate for command-line argument parsing. The `Args` struct defines the available command-line options and arguments.
 
@@ -42,7 +42,7 @@ The `main` function performs the following steps:
 7. Prints the mnemonic, hex representation, and modifies the machine's state accordingly.
 8. The loop continues until the user interrupts it (e.g., by pressing Ctrl-C or Ctrl-D).
 
-### `machine.rs`
+## `machine.rs`
 
 The `machine.rs` file contains the implementation of the `Machine` struct, which represents the machine emulator. The struct includes fields for the register map, assembler, unicorn engine, CPU information, stack pointer, and stack frame.
 
@@ -61,7 +61,7 @@ The `Machine` struct provides several methods:
 - `write_instruction`: Writes the assembled instruction to memory and executes it using the Unicorn engine.
 - `print_stack`: Prints the current stack context of the machine.
 
-### `cpu.rs`
+## `cpu.rs`
 
 The `cpu.rs` file defines the CPU architecture and mode enums (`Arch` and `Mode`) and provides implementations for converting between different CPU modes and architectures. It also includes the `ArchMeta` trait and its implementations (`X32` and `X64`), which define the meta information and operations for specific CPU architectures.
 
@@ -71,7 +71,7 @@ The `ArchMeta` trait defines the common operations and metadata for different CP
 
 The file also provides two implementations of the `ArchMeta` trait: `X32` for 32-bit x86 architecture and `X64` for 64-bit x86 architecture.
 
-### `mod.rs`
+## `mod.rs`
 
 The `mod.rs` file acts as a module file that includes the `cpu` and `machine` modules. It helps organize and manage the project's modules.
 
