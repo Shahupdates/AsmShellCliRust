@@ -107,17 +107,17 @@ impl<'a> Machine<'a> {
             .reg_write(self.sp, value)
             .map_err(MachineError::Unicorn)
     }
+
     pub fn set_fp(&mut self, value: u64) -> Result<(), MachineError> {
         self.emu
             .reg_write(self.fp, value)
             .map_err(MachineError::Unicorn)
     }
-}
 
-impl<'a> Machine<'a> {
     pub fn print_machine(&self) {
         println!("arch: {:?} mode: {:?}", self.cpu.0, self.cpu.1);
     }
+
     pub fn print_register(&mut self) {
         println!(
             "{}",
@@ -161,8 +161,8 @@ impl<'a> Machine<'a> {
         self.previous_reg_value = current_reg_val_map;
     }
 
-    pub fn asm(&self, str: String, address: u64) -> Result<AsmResult, Error> {
-        self.assembler.asm(str, address)
+    pub fn asm(&self, asm_str: String, address: u64) -> Result<AsmResult, Error> {
+        self.assembler.asm(asm_str, address)
     }
 
     pub fn write_instruction(&mut self, byte_arr: Vec<u8>) {
@@ -183,7 +183,6 @@ impl<'a> Machine<'a> {
         );
         let cur_sp_val = self.emu.reg_read(self.sp).unwrap();
 
-        //let start_address = (0x1300000 - 8 * self.byte_size) as u64;
         let mut start_address: u64 = 0x1300000;
         while cur_sp_val < start_address - 4 * self.byte_size as u64 {
             start_address -= 4 * self.byte_size as u64;
@@ -194,7 +193,6 @@ impl<'a> Machine<'a> {
             .mem_read_as_vec(start_address, self.byte_size * 4 * 5)
             .unwrap();
 
-        // 8 个字节打印一次
         (0..mem_data.len())
             .step_by(4 * self.byte_size)
             .for_each(|idx| {
